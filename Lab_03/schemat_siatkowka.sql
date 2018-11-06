@@ -6,8 +6,6 @@ drop table siatkowka.druzyny;
 
 begin;
 
-CREATE SCHEMA siatkowka;
-
 create table siatkowka.druzyny (
   iddruzyny varchar(5) primary key,
   nazwa varchar(40) not null,

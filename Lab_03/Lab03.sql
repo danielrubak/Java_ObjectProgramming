@@ -91,27 +91,64 @@ SELECT telefon FROM Klienci WHERE telefon NOT LIKE '% % % %';
 -- Zadanie 3.4, baza danych: cukiernia
 
 -- 1. Masa mieści się w przedziale od 15 do 24 g lub koszt produkcji mieści się w przedziale od 15 do 24 gr.
+
+SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE masa > 15 AND masa < 24 UNION SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE koszt > 0.15 AND koszt < 0.24;
+
 -- 2. Masa mieści się w przedziale od 25 do 35 g, ale koszt produkcji nie mieści się w przedziale od 25 do 35 gr.
+
+SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE masa BETWEEN 25 AND 35 EXCEPT SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE koszt BETWEEN 0.25 AND 0.35;
+
 -- 3. Masa mieści się w przedziale od 15 do 24 g i koszt produkcji mieści się w przedziale od 15 do 24 gr lub masa mieści się w przedziale od 25 do 35 g i koszt produkcji mieści się w przedziale od 25 do 35 gr.
+
+(SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE masa BETWEEN 15 AND 24 INTERSECT SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE koszt BETWEEN 0.15 AND 0.24) UNION (SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE masa BETWEEN 25 AND 35 INTERSECT SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE koszt BETWEEN 0.25 AND 0.35);
+
 -- 4. Masa mieści się w przedziale od 15 do 24 g i koszt produkcji mieści się w przedziale od 15 do 24 gr.
+
+SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE masa BETWEEN 15 AND 24 INTERSECT SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE koszt BETWEEN 0.15 AND 0.24;
+
+
 -- 5. Masa mieści się w przedziale od 25 do 35 g, ale koszt produkcji nie mieści się ani w przedziale od 15 do 24 gr, ani w przedziale od 29 do 35 gr.
+
+SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE masa BETWEEN 25 AND 35 EXCEPT SELECT idczekoladki, nazwa, masa, koszt FROM czekoladki WHERE koszt BETWEEN 0.15 AND 0.24 OR koszt BETWEEN 0.29 AND 0.35;
 
 --------------------------------------
 -- Zadanie 3.5, baza danych: cukiernia
 
 -- 1. Identyfikatory klientów, którzy nigdy nie złożyli żadnego zamówienia.
+
+SELECT idklienta FROM klienci EXCEPT SELECT idklienta FROM zamowienia;
+
 -- 2. Identyfikatory pudełek, które nigdy nie zostały zamówione.
+
+SELECT idpudelka FROM pudelka EXCEPT SELECT idpudelka FROM artykuly;
+
 -- 3. Nazwy klientów, czekoladek i pudełek, które zawierają rz (lub Rz).
+
+SELECT nazwa FROM klienci WHERE nazwa LIKE 'Rz%' OR nazwa LIKE '%rz%' UNION SELECT nazwa FROM pudelka WHERE nazwa LIKE 'Rz%' OR nazwa LIKE '%rz%' UNION SELECT nazwa FROM czekoladki WHERE nazwa LIKE 'Rz%' OR nazwa LIKE '%rz%';
+
 -- 4. Identyfikatory czekoladek, które nie występują w żadnym pudełku.
+
+SELECT idczekoladki FROM czekoladki EXCEPT SELECT idczekoladki FROM zawartosc;
 
 --------------------------------------
 -- Zadanie 3.6, baza danych: siatkówka
 
 -- 1. Identyfikator meczu, sumę punktów zdobytych przez gospodarzy i sumę punktów zdobytych przez gości.
+
+SELECT idmeczu, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) gospodarze, (SELECT SUM(s2) FROM UNNEST(goscie) s2) goscie FROM statystyki;
+
 -- 2. Identyfikator meczu, sumę punktów zdobytych przez gospodarzy i sumę punktów zdobytych przez gości, dla meczów, które skończyły się po 5 setach i zwycięzca ostatniego seta zdobył ponad 15 punktów.
+
+SELECT idmeczu, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) gospodarze, (SELECT SUM(s2) FROM UNNEST(goscie) s2) goscie FROM statystyki WHERE (ARRAY_LENGTH(gospodarze, 1) = 5 OR ARRAY_LENGTH(goscie, 1) = 5) AND (gospodarze[5] > 15 OR goscie[5]>15);
+
 -- 3. Identyfikator i wynik meczu w formacie x:y, np. 3:1 (wynik jest pojedynczą kolumną – napisem),
 -- 4. Identyfikator meczu, sumę punktów zdobytych przez gospodarzy i sumę punktów zdobytych przez gości, dla meczów, w których gospodarze zdobyli ponad 100 punktów.
+
+SELECT idmeczu, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) gospodarze, (SELECT SUM(s2) FROM UNNEST(goscie) s2) goscie FROM statystyki WHERE (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) > 100;
+
 -- 5. Identyfikator meczu, liczbę punktów zdobytych przez gospodarzy w pierwszym secie, sumę punktów zdobytych w meczu przez gospodarzy, dla meczów, w których pierwiastek kwadratowy z liczby punktów zdobytych w pierwszym secie jest mniejszy niż logarytm o podstawie 2 z sumy punktów zdobytych w meczu. ;)
+
+SELECT * FROM (SELECT idmeczu, gospodarze[1] AS pierwszy_set, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) AS caly_mecz FROM statystyki) AS Result WHERE sqrt(pierwszy_set) < log(2, caly_mecz);
 
 --------------------------------------
 -- Zadanie 3.7, baza danych: siatkówka

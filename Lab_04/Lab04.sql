@@ -7,19 +7,44 @@
 -- Zadanie 4.2, baza danych: cukiernia
 
 -- 1. Zostały złożone przez klienta, który ma na imię Antoni.
+
+SELECT k.nazwa, z.idzamowienia, z.datarealizacji FROM klienci k JOIN zamowienia z ON k.idklienta= z.idklienta WHERE k.nazwa LIKE '%Antoni%'
+
 -- 2. Zostały złożone przez klientów z mieszkań (zwróć uwagę na pole ulica).
+
+SELECT k.nazwa, z.idzamowienia, z.datarealizacji FROM klienci k JOIN zamowienia z ON k.idklienta= z.idklienta WHERE k.ulica LIKE '%/%';
+
 -- 3. Zostały złożone przez klienta z Krakowa do realizacji w listopadzie 2013 roku.
+
+SELECT k.nazwa, z.idzamowienia, z.datarealizacji FROM klienci k JOIN zamowienia z ON k.idklienta= z.idklienta WHERE k.miejscowosc = 'Kraków' AND CAST(z.datarealizacji AS TEXT) LIKE '2013-11-%';
 
 --------------------------------------
 -- Zadanie 4.3, baza danych: cukiernia
 
 -- 1. Złożyli zamówienia z datą realizacji nie starszą niż sprzed pięciu lat.
+
+SELECT k.nazwa, k.ulica, k.miejscowosc, z.datarealizacji FROM klienci k JOIN zamowienia z ON k.idklienta = z.idklienta WHERE z.datarealizacji > NOW() - INTERVAL '5 years';
+
 -- 2. Zamówili pudełko Kremowa fantazja lub Kolekcja jesienna.
+
+SELECT k.nazwa, k.ulica, k.miejscowosc, z.datarealizacji, p.nazwa FROM klienci k JOIN zamowienia z ON k.idklienta = z.idklienta JOIN artykuly a ON a.idzamowienia = z.idzamowienia INNER JOIN pudelka p ON a.idpudelka = p.idpudelka WHERE p.nazwa IN ('Kremowa fantazja', 'Kolekcja jesienna');
+
 -- 3. Złożyli przynajmniej jedno zamówienie.
+
+SELECT k.nazwa, k.ulica, k.miejscowosc, COUNT(idzamowienia) AS liczba_zamowien FROM klienci k JOIN zamowienia z ON z.idklienta = k.idklienta GROUP BY k.idklienta;
+
 -- 4. Nie złożyli żadnych zamówień.
+
+SELECT idklienta FROM klienci EXCEPT (SELECT DISTINCT k.idklienta FROM klienci k JOIN zamowienia z ON z.idklienta = k.idklienta);
+
 -- 5. Złożyli zamówienia z datą realizacji w listopadzie 2013.
+
+SELECT k.nazwa, z.idzamowienia, z.datarealizacji FROM klienci k JOIN zamowienia z ON k.idklienta= z.idklienta WHERE CAST(z.datarealizacji AS TEXT) LIKE '2013-11-%';
+
 -- 6. Zamówili co najmniej 2 sztuki pudełek Kremowa fantazja lub Kolekcja jesienna w ramach jednego zamówienia.
 -- 7. Zamówili pudełka, które zawierają czekoladki z migdałami.
+
+SELECT k.nazwa, k.ulica, k.miejscowosc, z.datarealizacji, p.nazwa AS nazwa_pudelka, a.sztuk FROM klienci k JOIN zamowienia z ON k.idklienta = z.idklienta JOIN artykuly a ON a.idzamowienia = z.idzamowienia INNER JOIN pudelka p ON a.idpudelka = p.idpudelka WHERE p.nazwa IN ('Kremowa fantazja', 'Kolekcja jesienna') AND a.sztuk >= 2;
 
 --------------------------------------
 -- Zadanie 4.4, baza danych: cukiernia
