@@ -129,7 +129,7 @@ SELECT * FROM czekoladki WHERE ((masa > 25 AND masa < 35) AND (koszt < 0.15 OR  
 --------------------------------------
 -- Zadanie 2.7, baza danych: cukiernia
 
-\a - popsuło formatowanie
+\a - formatowanie wyniku z wyrównaniem lub bez
 \f - zmienia seperator wyświetlanych danych
 \H - dane wyświetlane są w formacie HTML
 \o nazwa_pliku - przekierowuje wynik do pliku nazwa_pliku

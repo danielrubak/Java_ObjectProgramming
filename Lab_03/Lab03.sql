@@ -141,7 +141,22 @@ SELECT idmeczu, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) gospodarze, (SELECT 
 
 SELECT idmeczu, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) gospodarze, (SELECT SUM(s2) FROM UNNEST(goscie) s2) goscie FROM statystyki WHERE (ARRAY_LENGTH(gospodarze, 1) = 5 OR ARRAY_LENGTH(goscie, 1) = 5) AND (gospodarze[5] > 15 OR goscie[5]>15);
 
--- 3. Identyfikator i wynik meczu w formacie x:y, np. 3:1 (wynik jest pojedynczą kolumną – napisem),
+-- 3. Identyfikator i wynik meczu w formacie x:y, np. 3:1 (wynik jest pojedynczą kolumną – napisem).
+
+SELECT idmeczu,
+(CASE WHEN(gospodarze[1] > goscie[1])THEN 1 ELSE 0 END+
+ CASE WHEN (gospodarze[2] > goscie[2]) THEN 1 ELSE 0 END +
+ CASE WHEN (gospodarze[3] > goscie[3]) THEN 1 ELSE 0 END +
+ CASE WHEN (gospodarze[4] > goscie[4]) THEN 1 ELSE 0 END +
+ CASE WHEN (gospodarze[5] > goscie[5]) THEN 1 ELSE 0 END)
+|| ':' ||
+(CASE WHEN(gospodarze[1] < goscie[1])THEN 1 ELSE 0 END+
+ CASE WHEN (gospodarze[2] < goscie[2]) THEN 1 ELSE 0 END +
+ CASE WHEN (gospodarze[3] < goscie[3]) THEN 1 ELSE 0 END +
+ CASE WHEN (gospodarze[4] < goscie[4]) THEN 1 ELSE 0 END +
+ CASE WHEN (gospodarze[5] < goscie[5]) THEN 1 ELSE 0 END)
+AS "wynik" FROM statystyki;
+
 -- 4. Identyfikator meczu, sumę punktów zdobytych przez gospodarzy i sumę punktów zdobytych przez gości, dla meczów, w których gospodarze zdobyli ponad 100 punktów.
 
 SELECT idmeczu, (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) gospodarze, (SELECT SUM(s2) FROM UNNEST(goscie) s2) goscie FROM statystyki WHERE (SELECT SUM(s1) FROM UNNEST(gospodarze) s1) > 100;
