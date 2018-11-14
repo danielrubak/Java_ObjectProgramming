@@ -1,1 +1,0 @@
-UPDATE czekoladki SET czekolada = coalesce(czekolada, 'brak'), orzechy = coalesce(orzechy, 'brak'), nadzienie = coalesce(nadzienie, 'brak') WHERE idczekoladki IN (SELECT idczekoladki FROM czekoladki WHERE czekolada IS NULL OR orzechy IS NULL OR nadzienie IS NULL);
