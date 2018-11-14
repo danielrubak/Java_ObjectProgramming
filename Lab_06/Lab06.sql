@@ -115,12 +115,10 @@ File name: Ex_6_6.sql
 -- Zadanie 6.7, baza danych: cukiernia, oprogramowanie: psql
 
 -- 1. Polecenie COPY pozwala m.in. kopiowanie danych między bazą danych i standardowym systemem plików. Polecenie COPY FROM kopiuje dane z pliku do wskazanej tabeli. Domyślnie wartości atrybutów są oddzielane tabulatorem, zaś NULL jest oznaczany symbolem \N. Polecenie COPY TO kopiuje dane z bazy danych (cała tabela, wybrane kolumny lub wynik instrukcji SELECT) do pliku. Opcje polecenia pozwalają zdefiniować m.in. separator, oznaczenia wartości null, oznaczenie napisu pustego itp. http://www.postgresql.org/docs/9.1/static/sql-copy.html
+-- Napisz skrypt zawierający instrukcje COPY wstawiające do bazy danych cukiernia dwa nowe rekordy do tabeli pudelka oraz odpowiednie rekordy związane z tymi pudełkami do tabeli zawartosc. Każde z nowych pudełek ma zawierać łącznie co najmniej 10 czekoladek, w co najmniej 4 różnych smakach.
 
-
-
--- 2. Napisz skrypt zawierający instrukcje COPY wstawiające do bazy danych cukiernia dwa nowe rekordy do tabeli pudelka oraz odpowiednie rekordy związane z tymi pudełkami do tabeli zawartosc. Każde z nowych pudełek ma zawierać łącznie co najmniej 10 czekoladek, w co najmniej 4 różnych smakach.
-
-
+\copy pudelka FROM Ex_6_7_1 (delimiter('|'));
+\copy zawartosc FROM Ex_6_7_2 (delimiter('|'));
 
 --------------------------------------
 -- Zadanie 6.8, baza danych: cukiernia
@@ -132,6 +130,8 @@ UPDATE zawartosc SET sztuk = sztuk + 1 WHERE idpudelka = 'NB02';
 
 -- 2. Napisz skrypt zawierający instrukcje UPDATE, które modyfikują tabelę czekoladki zastępując w kolumnach: czekolada, orzechy i nadzienie wartości Null wartością “brak”.
 
-File: Ex_6_8.sql
+File: Ex_6_8_2.sql
 
 -- 3. Napisz skrypt zawierający instrukcje UPDATE, które anulują zmiany wprowadzone w poprzednim punkcie.
+
+File: Ex_6_8_3.sql

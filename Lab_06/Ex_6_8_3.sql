@@ -1,0 +1,1 @@
+UPDATE czekoladki SET czekolada = NULLIF(czekolada, 'brak'), orzechy = NULLIF(orzechy, 'brak'), nadzienie = NULLIF(nadzienie, 'brak') WHERE idczekoladki IN (SELECT idczekoladki FROM czekoladki WHERE czekolada = 'brak' OR orzechy = 'brak' OR nadzienie = 'brak');
