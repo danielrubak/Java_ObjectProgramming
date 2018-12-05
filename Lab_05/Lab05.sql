@@ -1,4 +1,4 @@
--- Zadanie 5.1, baza danych: cukiernia
+SUM-- Zadanie 5.1, baza danych: cukiernia
 
 -- 1. Łącznej liczby czekoladek w bazie danych.
 
@@ -11,11 +11,19 @@ SELECT COUNT(idczekoladki) FROM czekoladki WHERE nadzienie IS NOT NULL;
 
 -- 3. Pudełka, w którym jest najwięcej czekoladek (uwaga: konieczne jest użycie LIMIT).
 
-SELECT idpudelka, SUM(sztuk) FROM zawartosc GROUP BY idpudelka ORDER BY sum DESC LIMIT 1;
+SELECT idpudelka, SUM(sztuk) FROM zawartosc GROUP BY idpudelka ORDER BY SUM DESC LIMIT 1;
 
 -- 4. Łącznej liczby czekoladek w poszczególnych pudełkach.
+
+SELECT p.idpudelka, SUM(z.sztuk) AS liczba_czekoladek FROM czekoladki c NATURAL JOIN zawartosc z JOIN pudelka p USING(idpudelka) GROUP BY p.idpudelka;
+
 -- 5. Łącznej liczby czekoladek bez orzechów w poszczególnych pudełkach.
+
+SELECT p.idpudelka, SUM(z.sztuk) AS liczba_czekoladek FROM czekoladki c NATURAL JOIN zawartosc z JOIN pudelka p USING(idpudelka) WHERE c.orzechy IS NULL GROUP BY p.idpudelka;
+
 -- 6. Łącznej liczby czekoladek w mlecznej czekoladzie w poszczególnych pudełkach.
+
+SELECT idpudelka, p.nazwa, SUM(sztuk) FROM zawartosc z NATURAL JOIN pudelka p JOIN czekoladki c USING (idczekoladki) WHERE czekolada ilike 'mleczna' GROUP BY idpudelka, p.nazwa ORDER BY idpudelka;
 
 --------------------------------------
 -- Zadanie 5.2, baza danych: cukiernia
@@ -31,7 +39,12 @@ SELECT z.idpudelka, SUM(c.masa * z.sztuk) AS masapudelka FROM zawartosc z JOIN c
 
 
 -- 3. Średniej masy pudełka w ofercie cukierni.
+
+SELECT AVG(q1.masa) FROM (SELECT SUM(z.sztuk * c.masa) AS masa FROM czekoladki c NATURAL JOIN zawartosc z JOIN pudelka p USING(idpudelka)  GROUP BY p.idpudelka) AS q1;
+
 -- 4. Średniej wagi pojedynczej czekoladki w poszczególnych pudełkach.
+
+SELECT p.idpudelka, p.nazwa, SUM(masa*sztuk)/SUM(sztuk)::numeric(5,2) FROM pudelka p NATURAL JOIN zawartosc JOIN czekoladki c USING (idczekoladki) GROUP BY p.idpudelka;
 
 --------------------------------------
 -- Zadanie 5.3, baza danych: cukiernia
@@ -45,7 +58,12 @@ SELECT datarealizacji, COUNT(*) liczba_zamowien FROM zamowienia GROUP BY datarea
 SELECT COUNT(*) FROM zamowienia;
 
 -- 3. Łącznej wartości wszystkich zamówień.
+
+SELECT COALESCE(SUM(q.wart), 0) AS laczna_wart FROM (SELECT (a.sztuk * p.cena) AS wart FROM zamowienia z NATURAL JOIN artykuly a NATURAL JOIN pudelka p) AS q;
+
 -- 4. Klientów, liczby złożonych przez nich zamówień i łącznej wartości złożonych przez nich zamówień.
+
+SELECT z.idklienta, count(a.idzamowienia), sum(p.cena*a.sztuk) FROM pudelka p NATURAL JOIN artykuly a JOIN zamowienia z USING(idzamowienia) GROUP BY z.idklienta ORDER BY z.idklienta;
 
 --------------------------------------
 -- Zadanie 5.4, baza danych: cukiernia
@@ -59,7 +77,10 @@ SELECT idczekoladki, COUNT(idpudelka) liczba_wystapien FROM zawartosc GROUP BY i
 SELECT z.idpudelka, COUNT(z.idczekoladki) FROM zawartosc z JOIN czekoladki c ON c.idczekoladki = z.idczekoladki WHERE c.orzechy IS NULL GROUP BY z.idpudelka ORDER BY 2 DESC LIMIT 1;
 
 -- 3. Czekoladki, która występuje w najmniejszej liczbie pudełek.
+
 -- 4. Pudełka, które jest najczęściej zamawiane przez klientów.
+
+SELECT nazwa, count(idzamowienia) FROM pudelka NATURAL JOIN artykuly GROUP BY idpudelka HAVING count(idzamowienia) = (SELECT COUNT(idzamowienia) FROM pudelka NATURAL JOIN artykuly GROUP BY idpudelka ORDER BY 1 DESC LIMIT 1);
 
 --------------------------------------
 -- Zadanie 5.5, baza danych: cukiernia
