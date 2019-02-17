@@ -1,6 +1,6 @@
 -- Zadanie 10.2, baza danych: cukiernia
 
---Napisz zapytanie wyświetlające informacje na temat zamówień (dataRealizacji, idzamowienia) używając odpowiedniego operatora in/not in/exists/any/all, które:
+-- Napisz zapytanie wyświetlające informacje na temat zamówień (dataRealizacji, idzamowienia) używając odpowiedniego operatora in/not in/exists/any/all, które:
 
 -- 1. Zostały złożone przez klienta, który ma na imię Antoni.
 
@@ -94,26 +94,53 @@ SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SEL
 --------------------------------------
 -- Zadanie 10.5, baza danych: cukiernia
 
---Napisz poniższe zapytania w języku SQL (używając odpowiedniego operatora, np. in/not in/exists/any/all):
+-- Napisz poniższe zapytania w języku SQL (używając odpowiedniego operatora, np. in/not in/exists/any/all):
 
 -- 1. Wyświetl wartości kluczy głównych oraz nazwy czekoladek, których koszt jest większy od czekoladki o wartości klucza głównego równej D08.
 
+SELECT c1.idczekoladki, c1.nazwa FROM czekoladki c1 WHERE EXISTS (SELECT idczekoladki FROM czekoladki c2 WHERE c2.idczekoladki ilike 'D08' AND c1.koszt > c2.koszt );
+
 -- 2. Kto (nazwa klienta) złożył zamówienia na takie same czekoladki (pudełka) jak zamawiała Gorka Alicja.
 
+SELECT DISTINCT k.nazwa FROM klienci k NATURAL JOIN zamowienia z NATURAL JOIN artykuly a WHERE a.idpudelka = ANY(SELECT a.idpudelka FROM artykuly a NATURAL JOIN zamowienia z WHERE z.idklienta IN (SELECT k.idklienta FROM klienci k WHERE nazwa ilike 'Górka Alicja'));
+
 -- 3. Kto (nazwa klienta, adres) złożył zamówienia na takie same czekoladki (pudełka) jak zamawiali klienci z Katowic.
+
+SELECT DISTINCT k.nazwa, k.ulica || ' ' || miejscowosc AS adres FROM klienci k NATURAL JOIN zamowienia z NATURAL JOIN artykuly a  WHERE a.idpudelka = ANY (SELECT a.idpudelka FROM artykuly a NATURAL JOIN zamowienia z WHERE z.idklienta IN (SELECT k.idklienta FROM klienci k WHERE miejscowosc = 'Katowice'));
 
 --------------------------------------
 -- Zadanie 10.6, baza danych: cukiernia
 
---Wyświetl nazwę pudełka oraz ilość czekoladek, dla:
+-- Wyświetl nazwę pudełka oraz ilość czekoladek, dla:
 
 -- 1. Pudełka o największej liczbie czekoladek (bez użycia klauzuli limit).
+
+SELECT nazwa, SUM(sztuk) FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka HAVING SUM(sztuk) = ( SELECT MAX(ilosci.suma) FROM ( SELECT SUM(sztuk) AS suma FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka ) AS ilosci );
+
+SELECT nazwa, SUM(sztuk) FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka HAVING SUM(sztuk) >= ALL ( SELECT SUM(sztuk) AS ilosc FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka );
+
 -- 2. Pudełka o najmniejszej liczbie czekoladek (bez użycia klauzuli limit).
+
+SELECT nazwa, SUM(sztuk) FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka HAVING SUM(sztuk) = (SELECT MIN(ilosci.suma) FROM (SELECT SUM(sztuk) AS suma FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka) AS ilosci);
+
+SELECT nazwa, SUM(sztuk) FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka HAVING SUM(sztuk) <= ALL ( SELECT SUM(sztuk) AS ilosc FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka );
+
 -- 3. Pudełka, w którym liczba czekoladek jest powyżej średniej.
+
+SELECT nazwa, idpudelka, SUM(sztuk) AS liczebnosc FROM pudelka NATURAL JOIN zawartosc  w GROUP by idpudelka having SUM(sztuk) > (SELECT AVG(sumy) AS srednia FROM (SELECT SUM(sztuk) AS sumy FROM zawartosc GROUP BY idpudelka) AS inner_query);
+
 -- 4. Pudełka o największej lub najmniejszej liczbie czekoladek.
+
+SELECT nazwa, SUM(sztuk) FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka
+HAVING
+SUM(sztuk) = (SELECT MIN(ilosci.suma) FROM (SELECT SUM(sztuk) AS suma FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka) AS ilosci)
+OR
+SUM(sztuk) = (SELECT MAX(ilosci.suma) FROM (SELECT SUM(sztuk) AS suma FROM pudelka NATURAL JOIN zawartosc GROUP BY idpudelka) AS ilosci);
 
 --------------------------------------
 -- Zadanie 10.7, baza danych: cukiernia
 
 -- Napisz zapytanie wyświetlające: liczbę porządkową i identyfikator pudełka czekoladek (idpudelka). Identyfikatory pudełek mają być posortowane alfabetycznie, rosnąco. Liczba porządkowa jest z przedziału 1..N, gdzie N jest ilością pudełek.
 -- Użyj podzapytania w klauzuli SELECT: SELECT kolumna1, kolumna2, (SELECT ...) FROM ...
+
+SELECT (SELECT COUNT(*) FROM pudelka p2 WHERE p2.idpudelka <= p1.idpudelka) AS "L. p.", p1.idpudelka FROM pudelka p1 ORDER BY p1.idpudelka;
