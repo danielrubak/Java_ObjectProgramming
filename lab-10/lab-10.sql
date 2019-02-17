@@ -4,9 +4,17 @@
 
 -- 1. Zostały złożone przez klienta, który ma na imię Antoni.
 
+SELECT idzamowienia, datarealizacji FROM zamowienia WHERE idklienta IN (SELECT idklienta FROM klienci WHERE nazwa LIKE '%Antoni');
+
 -- 2. Zostały złożone przez klientów z mieszkań (zwróć uwagę na pole ulica).
 
+SELECT idzamowienia, datarealizacji FROM zamowienia WHERE idklienta IN (SELECT idklienta FROM klienci WHERE ulica LIKE '%/%');
+
 -- 3. Zostały złożone przez klienta z Krakowa do realizacji w listopadzie 2013 roku.
+
+SELECT idzamowienia, datarealizacji FROM zamowienia WHERE EXISTS (SELECT miejscowosc FROM klienci WHERE miejscowosc = 'Kraków' AND klienci.idklienta = zamowienia.idklienta AND datarealizacji BETWEEN '2013-11-01' AND '2013-11-30');
+
+SELECT z.idklienta, z.idzamowienia, z.datarealizacji FROM zamowienia z, klienci k WHERE z.idklienta=k.idklienta and k.idklienta IN (SELECT idklienta FROM klienci k WHERE k.miejscowosc ilike 'Kraków' AND date_part('month',z.datarealizacji) = 11 AND date_part('year', z.datarealizacji) = 2013);
 
 --------------------------------------
 -- Zadanie 10.3, baza danych: cukiernia
@@ -15,17 +23,32 @@
 
 -- 1. Złożyli zamówienia z datą realizacji 12.11.2013.
 
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE idklienta IN (SELECT idklienta FROM zamowienia WHERE datarealizacji = '2013-11-12');
+
 -- 2. Złożyli zamówienia z datą realizacji w listopadzie 2013.
+
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE idklienta IN (SELECT idklienta FROM zamowienia WHERE datarealizacji BETWEEN '2013-11-01' AND '2013-11-30');
 
 -- 3. Zamówili pudełko Kremowa fantazja lub Kolekcja jesienna.
 
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE idklienta IN (SELECT z.idklienta FROM zamowienia z NATURAL JOIN artykuly a NATURAL JOIN pudelka p WHERE p.nazwa IN ('Kremowa fantazja', 'Kolekcja jesienna'));
+
 -- 4. Zamówili co najmniej 2 sztuki pudełek Kremowa fantazja lub Kolekcja jesienna w ramach jednego zamówienia.
+
+SELECT k.nazwa, k.ulica, k.miejscowosc FROM klienci k  WHERE k.idklienta IN (SELECT z.idklienta FROM zamowienia z NATURAL JOIN artykuly a NATURAL JOIN pudelka p WHERE p.nazwa IN ('Kremowa fantazja', 'Kolekcja jesienna') AND a.sztuk >= 2);
 
 -- 5. Zamówili pudełka, które zawierają czekoladki z migdałami.
 
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE idklienta IN (SELECT z.idklienta FROM zamowienia z JOIN artykuly a USING(idzamowienia) JOIN pudelka p USING(idpudelka) JOIN zawartosc USING(idpudelka) JOIN czekoladki USING (idczekoladki) WHERE orzechy ilike 'migdały');
+
 -- 6. Złożyli przynajmniej jedno zamówienie.
 
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE idklienta IN (SELECT idklienta FROM zamowienia WHERE idklienta IS NOT NULL);
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE EXISTS (SELECT idklienta FROM zamowienia);
+
 -- 7. Nie złożyli żadnych zamówień.
+
+SELECT nazwa, ulica, miejscowosc FROM klienci WHERE NOT EXISTS (SELECT idklienta FROM zamowienia where klienci.idklienta = zamowienia.idklienta);
 
 --------------------------------------
 -- Zadanie 10.4, baza danych: cukiernia
@@ -34,21 +57,39 @@
 
 -- 1. Zawierają czekoladki o wartości klucza głównego D0.
 
+SELECT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT DISTINCT idpudelka FROM zawartosc WHERE idczekoladki ilike 'D09');
+
 -- 2. Zawierają czekoladki Gorzka truskawkowa.
+
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT z.idpudelka FROM zawartosc z WHERE z.idczekoladki IN (SELECT c.idczekoladki FROM czekoladki c WHERE c.nazwa ilike 'Gorzka truskawkowa'));
 
 -- 3. Zawierają przynajmniej jedną czekoladkę, której nazwa zaczyna się na S.
 
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT z.idpudelka FROM zawartosc z WHERE z.idczekoladki IN (SELECT c.idczekoladki FROM czekoladki c WHERE c.nazwa LIKE 'S%'));
+
 -- 4. Zawierają przynajmniej 4 sztuki czekoladek jednego gatunku (o takim samym kluczu głównym).
+
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT z.idpudelka FROM zawartosc z WHERE z.sztuk >= 4);
 
 -- 5. Zawierają co najmniej 3 sztuki czekoladki Gorzka truskawkowa.
 
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT z.idpudelka FROM zawartosc z WHERE EXISTS (SELECT z.idczekoladki FROM czekoladki c WHERE c.nazwa ilike 'Gorzka truskawkowa' AND z.idczekoladki = c.idczekoladki) AND z.sztuk >= 3 );
+
 -- 6. Zawierają czekoladki z nadzieniem truskawkowym.
+
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT DISTINCT z.idpudelka FROM zawartosc z WHERE z.idczekoladki IN  (SELECT c.idczekoladki FROM czekoladki c WHERE c.nadzienie ilike 'Truskawki'));
 
 -- 7. Nie zawierają czekoladek w gorzkiej czekoladzie.
 
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka != ALL (SELECT z.idpudelka FROM zawartosc z NATURAL JOIN czekoladki c WHERE c.czekolada ilike 'Gorzka');
+
 -- 8. Nie zawierają czekoladek z orzechami.
 
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka = SOME  (SELECT z.idpudelka FROM zawartosc z NATURAL JOIN czekoladki c WHERE c.orzechy IS NULL);
+
 -- 9. Zawierają przynajmniej jedną czekoladkę bez nadzienia.
+
+SELECT DISTINCT p.nazwa, p.opis, p.cena FROM pudelka p WHERE p.idpudelka IN (SELECT z.idpudelka FROM zawartosc z NATURAL JOIN czekoladki c WHERE c.nadzienie IS NULL);
 
 --------------------------------------
 -- Zadanie 10.5, baza danych: cukiernia
