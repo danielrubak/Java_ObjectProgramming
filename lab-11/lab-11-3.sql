@@ -3,7 +3,7 @@
 
 DROP FUNCTION IF EXISTS sumaZamowien(INT);
 CREATE FUNCTION sumaZamowien(klient INT)
-   RETURNS NUMERIC(7,2) AS
+   RETURNS NUMERIC(7, 2) AS
 $$
 
 DECLARE suma_zamowien NUMERIC(7, 2);
@@ -30,7 +30,7 @@ LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS naliczRabat(INT);
 CREATE FUNCTION naliczRabat(klient INT)
-   RETURNS NUMERIC(7,2) AS
+   RETURNS NUMERIC(7, 2) AS
 $$
 
 DECLARE rabat NUMERIC(7, 2);
@@ -40,7 +40,7 @@ BEGIN
    IF suma_zamowien BETWEEN 101 AND 200
       THEN rabat = 0.04;
    ELSEIF suma_zamowien BETWEEN 201 AND 400
-      THEN rabat =0.07;
+      THEN rabat = 0.07;
    ELSE
       rabat = 0.08;
    END IF;

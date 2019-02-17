@@ -28,6 +28,17 @@
 
 -- Wyznacz relacje dla poniższego konceptualnego modelu danych. (model znajduje się w pliku 7.4.png)
 
+MetodaPłatności : {metodaPłNr}
+Klient : {klientNr}
+Artykuł : {artykułNr}
+Pracownik : {pracownikNr}
+SposóbTransportu : {sposóbTrNr}
+
+Faktura : {fakturaNr, metodaPłNr, zamówienieNr}
+Zamówienie : {zamówienieNr, klientNr, pracownikNr}
+SzczegółyZamowienia : {____?, artykułNr, zamówienieNr}
+Transport : {transportNr, ____?, pracownikNr, sposóbTrNr}
+
 -----------------------------------
 -- Zadanie 7.5, oprogramowanie: dia
 

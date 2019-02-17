@@ -1,7 +1,11 @@
 -- Zadanie 4.1, baza danych: cukiernia
 
 -- 1. W którym zapytaniu występuje iloczyn kartezjański?
+SELECT k.nazwa, z.idzamowienia FROM klienci k, zamowienia z;
+
 -- 2. Które zapytanie dostarcza bezwartościowych danych?
+SELECT k.nazwa FROM klienci k;
+SELECT k.nazwa, z.idzamowienia FROM klienci k, zamowienia z;
 
 --------------------------------------
 -- Zadanie 4.2, baza danych: cukiernia
@@ -149,7 +153,7 @@ SELECT c1.idczekoladki AS "Id czekoladek", c1.nazwa AS "Nazwa czekoladek" FROM  
 
 -- 2. Kto (nazwa klienta) złożył zamówienia na takie same czekoladki (pudełka) jak zamawiała Górka Alicja.
 
-SELECT DISTINCT ON(k1.nazwa, zaw1.idpudelka) k1.nazwa, zam1.idzamowienia, c1.idczekoladki, c1.nazwa, zaw1.idpudelka FROM czekoladki c1 JOIN zawartosc zaw1 USING(idczekoladki) JOIN pudelka p1 USING(idpudelka) JOIN artykuly a1 USING (idpudelka) JOIN zamowienia zam1 USING(idzamowienia) JOIN klienci k1 USING(idklienta), czekoladki c2 JOIN zawartosc zaw2 USING(idczekoladki) JOIN pudelka p2 USING(idpudelka) JOIN artykuly a2 USING (idpudelka) JOIN zamowienia zam2 USING(idzamowienia) JOIN klienci k2 USING(idklienta) WHERE k2.nazwa = 'Górka Alicja' AND p1.idpudelka = p2.idpudelka; 
+SELECT DISTINCT ON(k1.nazwa, zaw1.idpudelka) k1.nazwa, zam1.idzamowienia, c1.idczekoladki, c1.nazwa, zaw1.idpudelka FROM czekoladki c1 JOIN zawartosc zaw1 USING(idczekoladki) JOIN pudelka p1 USING(idpudelka) JOIN artykuly a1 USING (idpudelka) JOIN zamowienia zam1 USING(idzamowienia) JOIN klienci k1 USING(idklienta), czekoladki c2 JOIN zawartosc zaw2 USING(idczekoladki) JOIN pudelka p2 USING(idpudelka) JOIN artykuly a2 USING (idpudelka) JOIN zamowienia zam2 USING(idzamowienia) JOIN klienci k2 USING(idklienta) WHERE k2.nazwa = 'Górka Alicja' AND p1.idpudelka = p2.idpudelka;
 
 -- 3. Kto (nazwa klienta, adres) złożył zamówienia na takie same czekoladki (pudełka) jak zamawiali klienci z Katowic.
 
